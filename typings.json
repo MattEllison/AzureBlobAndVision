@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "azure-storage": "registry:npm/azure-storage#0.10.0+20170124180926"
+  },
+  "globalDependencies": {
+    "jquery": "registry:dt/jquery#1.10.0+20170310222111"
+  }
+}
