@@ -1,10 +1,15 @@
+import { autoinject } from 'aurelia-dependency-injection';
 import { Picture } from './../../Models/Picture';
 import { HttpClient } from 'aurelia-http-client';
-
+  
+@autoinject
 export class BloblStorage {
     pictureContainer = "https://catstorageorix.blob.core.windows.net/temp";
     sharedKeyInfo = "sv=2017-04-17&ss=bfqt&srt=sco&sp=rwdlacup&se=2017-11-24T20:50:05Z&st=2017-11-04T12:50:05Z&spr=https&sig=lTzCFbApWqiRXlCJ6RHSim9BP2GsYMucxtVGxssxfWg%3D";
 
+    constructor(private httpClient:HttpClient){
+
+    }
     SavePicture(file) {
 
         let client = new HttpClient().configure(x => {
@@ -77,5 +82,13 @@ export class BloblStorage {
         return client.get(`${this.pictureContainer}/${filename}?${this.sharedKeyInfo}`).then((result) => {
             return result.headers['headers']['x-ms-meta-caption'].value;
         })
+    }
+
+
+    DeleteImage(picture:Picture){
+        return this.httpClient
+        .delete(`${picture.url}?${this.sharedKeyInfo}`);
+        
+
     }
 }

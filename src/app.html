@@ -1,20 +1,41 @@
 <template>
+  <require from="./resources/elements/form-upload"></require>
   <h1>Upload Pictures</h1>
-  <form submit.trigger="Submit()">
-    <div>
-      <input type="file" accept="image/*" files.bind="files">
+
+  <!-- <form>
+    <input change.delegate="Submit()" type="file" accept="image/*" files.bind="files">
+  </form> -->
+
+  <form-upload pictures.bind="pictures" pictureloading.bind="pictureloading" ></form-upload>
+
+  <div id="pictures">
+    <div class="picture" repeat.for="pic of pictures">
+
+      <div>
+        <a click.delegate="DeleteImage(pic)" href="#" style="float:right">Delete</a>
+        <div>
+          <img width="250px" src.bind="pic.url">
+        </div>
+        <div>${pic.caption}</div>
+      </div>
+
     </div>
 
-    <div>
-      <button type="submit">Submit</button>
+    <div class="picture" if.bind="pictureloading">
+
+      <img src="../loading.gif" alt="">
     </div>
-  </form>
+  </div>
 
-  
-    <p repeat.for="pic of pictures">
-      <img width="250px" src.bind="pic.url">
-      <span>${pic.caption}</span>
-      <!-- <span>${pic.caption}</span> -->
-    </p>
+  <style>
+    #pictures {
+      display: flex;
+    }
 
+    #pictures .picture {
+      padding: 10px;
+      width: 250px
+    }
+
+  </style>
 </template>

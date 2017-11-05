@@ -1,0 +1,55 @@
+<template>
+  <form  class="box has-advanced-upload"  dragover.trigger="dragging = true" dragleave.trigger="dragging = false"
+    drop.trigger="FileDropped($event)">
+    <div class="box__input ${dragging ? 'dragging':''}">
+      <input change.delegate="Submit()" class="box__file" type="file" name="file" id="file" files.bind="files" multiple />
+
+      <label for="file">
+
+        <i class="fa fa-upload fa-5x"></i>
+
+
+
+        <div if.bind="dragging">
+          Let go to upload!
+        </div>
+        <div else>
+          <div>
+            <strong>Click here to upload</strong>
+            <span class="box__dragndrop"> or drag it here</span>
+          </div>
+        </div>
+      </label>
+    </div>
+  </form>
+
+  <style>
+    .box__file {
+      display: none;
+    }
+
+    .box__input {
+      background-color: white;
+      outline: 2px dashed black;
+      padding: 50px;
+      text-align: center;
+    }
+
+
+
+    .box__input.dragging {
+      background-color: aliceblue;
+    }
+
+    label {
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      font-size: 200%;
+      cursor: pointer;
+    }
+
+    label i {
+      opacity: .20;
+    }
+
+  </style>
+</template>
