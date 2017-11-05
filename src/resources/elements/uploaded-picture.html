@@ -1,11 +1,38 @@
-<template>
-
-  <div>
+<template class.bind="pic.isNotCat() ? 'IsNotCat':'IsCat'">
+  <div class="Delete">
     <a click.delegate="DeleteImage(pic)" href="#" style="float:right">Delete</a>
-    <div>
-      <img width="250px" src.bind="pic.url">
-    </div>
-    <div>${pic.caption}</div>
   </div>
+  <div>
 
+    <div>
+      <img class="pic" width="250px" src.bind="pic.url">
+      <img class="wrong" if.bind="pic.isNotCat()" width="250px" src="../../../wrong.png">
+    </div>
+
+
+    <div class="caption">${pic.caption}</div>
+
+  </div>
+  <style if.bind="pic.isNotCat">
+    .IsNotCat .Delete {
+      padding-bottom: 20px;
+    }
+
+    .IsNotCat .pic {
+      position: absolute;
+    }
+
+    .IsNotCat img {
+      position: relative;
+      opacity: .4;
+      height: 150px;
+    }
+
+    .IsNotCat .caption {
+      padding-top: 20px;
+    }
+
+    
+
+  </style>
 </template>

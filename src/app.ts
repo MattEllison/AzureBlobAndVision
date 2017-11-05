@@ -21,6 +21,7 @@ export class App {
         pictures.forEach(picture => {
           this.blobStorage.GetBlobCaption(picture.filename).then(caption => {
             picture.caption = caption;
+            //picture.isNotCat = !picture.caption.toLowerCase().includes("cat");
             this.pictures.push(picture);
           });
         });
@@ -28,7 +29,7 @@ export class App {
 
       });
   }
-  
+
 
 
 }

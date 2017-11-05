@@ -5,8 +5,8 @@ import { bindable, autoinject } from 'aurelia-framework';
 @autoinject
 export class UploadedPicture {
   @bindable pic;
-  @bindable({defaultBindingMode: bindingMode.twoWay}) pictures;
-  constructor(private blobStorage:BloblStorage){
+  @bindable({ defaultBindingMode: bindingMode.twoWay }) pictures;
+  constructor(private blobStorage: BloblStorage) {
 
   }
   DeleteImage(pic) {

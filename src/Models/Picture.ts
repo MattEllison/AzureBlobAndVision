@@ -5,5 +5,7 @@ export class Picture {
     caption: string;
     name;
     url;
-
+    isNotCat(){
+        return !this.caption.toLocaleLowerCase().includes("cat");
+    }
 }
