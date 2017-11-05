@@ -14,19 +14,33 @@ export class FormUpload {
     constructor(private blobStorage: BloblStorage, private visionAPI: VisionApi) {
 
     }
+
+    filedropped(event) {
+        event.preventDefault();
+        this.dragging = false;
+        this.files = event.dataTransfer.files;
+        this.Submit();
+    }
+    dragging;
+    dragOver(event) {
+        event.preventDefault();
+        this.dragging = true;
+    }
     Submit() {
         this.pictureloading = true;
         this.blobStorage.SavePicture(this.files[0])
             .then((picture: Picture) => {
-                //let url = `https://catstorageorix.blob.core.windows.net/temp/${picture.filename}`;
                 this.visionAPI.processImage(picture.url).then((result: VisionResponse) => {
                     picture.caption = result.caption;
                     this.blobStorage.updateMetaDataForPicture(picture)
                         .then((picture: Picture) => {
                             this.pictures.push(picture);
                             this.pictureloading = false;
+
                         });
                 })
             });
     }
+
+
 }

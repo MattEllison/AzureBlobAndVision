@@ -1,15 +1,10 @@
 <template>
-  <form  class="box has-advanced-upload"  dragover.trigger="dragging = true" dragleave.trigger="dragging = false"
-    drop.trigger="FileDropped($event)">
+  <form class="box has-advanced-upload" dragover.trigger="dragOver($event)" dragleave.trigger="dragging = false" drop.trigger="filedropped($event)">
     <div class="box__input ${dragging ? 'dragging':''}">
-      <input change.delegate="Submit()" class="box__file" type="file" name="file" id="file" files.bind="files" multiple />
+      <input change.delegate="Submit()" class="box__file" type="file" name="file" id="file" files.bind="files" single />
 
       <label for="file">
-
         <i class="fa fa-upload fa-5x"></i>
-
-
-
         <div if.bind="dragging">
           Let go to upload!
         </div>

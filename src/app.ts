@@ -30,13 +30,6 @@ export class App {
       });
   }
   
-  DeleteImage(pic) {
-    this.blobStorage
-      .DeleteImage(pic)
-      .then(() => {
-        let index = this.pictures.indexOf(pic);
-        this.pictures.splice(index, 1);
-      });
-  }
+
 
 }

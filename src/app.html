@@ -1,5 +1,6 @@
 <template>
   <require from="./resources/elements/form-upload"></require>
+  <require from="./resources/elements/uploaded-picture"></require>
   <h1>Upload Pictures</h1>
 
   <!-- <form>
@@ -10,19 +11,10 @@
 
   <div id="pictures">
     <div class="picture" repeat.for="pic of pictures">
-
-      <div>
-        <a click.delegate="DeleteImage(pic)" href="#" style="float:right">Delete</a>
-        <div>
-          <img width="250px" src.bind="pic.url">
-        </div>
-        <div>${pic.caption}</div>
-      </div>
-
+      <uploaded-picture pictures.bind="pictures" pic.bind="pic"></uploaded-picture>
     </div>
 
     <div class="picture" if.bind="pictureloading">
-
       <img src="../loading.gif" alt="">
     </div>
   </div>

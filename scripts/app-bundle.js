@@ -29,15 +29,6 @@ define('app',["require", "exports", "aurelia-dependency-injection", "./resources
                 });
             });
         }
-        App.prototype.DeleteImage = function (pic) {
-            var _this = this;
-            this.blobStorage
-                .DeleteImage(pic)
-                .then(function () {
-                var index = _this.pictures.indexOf(pic);
-                _this.pictures.splice(index, 1);
-            });
-        };
         App = __decorate([
             aurelia_dependency_injection_1.autoinject,
             __metadata("design:paramtypes", [blobStorage_1.BloblStorage, visionapi_1.VisionApi])
@@ -216,26 +207,19 @@ define('resources/service/visionapi',["require", "exports", "./../../Models/Visi
         function VisionApi() {
             var _this = this;
             this.subscriptionKey = "311f1c6de3f946e68713e6ca28c580d7";
+            this.azureVisionAnalyzerAPI = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=description";
             this.httpClient = new aurelia_http_client_1.HttpClient().configure(function (x) {
                 x.withHeader('Ocp-Apim-Subscription-Key', _this.subscriptionKey);
             });
         }
         VisionApi.prototype.processImage = function (imageURL) {
             console.log("Processing image", imageURL);
-            var uriBase = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=description";
-            return this.httpClient.post(uriBase, {
+            return this.httpClient.post(this.azureVisionAnalyzerAPI, {
                 url: imageURL
             }).then(function (result) {
                 console.log("I did get a result", result);
                 return new VisionResponse_1.VisionResponse(JSON.parse(result.response));
             });
-        };
-        VisionApi.prototype.updateMetaDataForPicture = function (image) {
-            console.log("Vision response", image);
-            this.httpClient.createRequest(image.url + "?comp=metadata")
-                .withHeader('x-ms-meta-caption', image.caption)
-                .asPut()
-                .send();
         };
         return VisionApi;
     }());
@@ -295,6 +279,16 @@ define('resources/elements/form-upload',["require", "exports", "./../service/vis
             this.blobStorage = blobStorage;
             this.visionAPI = visionAPI;
         }
+        FormUpload.prototype.filedropped = function (event) {
+            event.preventDefault();
+            this.dragging = false;
+            this.files = event.dataTransfer.files;
+            this.Submit();
+        };
+        FormUpload.prototype.dragOver = function (event) {
+            event.preventDefault();
+            this.dragging = true;
+        };
         FormUpload.prototype.Submit = function () {
             var _this = this;
             this.pictureloading = true;
@@ -366,18 +360,34 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define('resources/elements/uploaded-picture',["require", "exports", "aurelia-framework"], function (require, exports, aurelia_framework_1) {
+define('resources/elements/uploaded-picture',["require", "exports", "aurelia-binding", "./../service/blobStorage", "aurelia-framework"], function (require, exports, aurelia_binding_1, blobStorage_1, aurelia_framework_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var UploadedPicture = (function () {
-        function UploadedPicture() {
+        function UploadedPicture(blobStorage) {
+            this.blobStorage = blobStorage;
         }
-        UploadedPicture.prototype.valueChanged = function (newValue, oldValue) {
+        UploadedPicture.prototype.DeleteImage = function (pic) {
+            var _this = this;
+            this.blobStorage
+                .DeleteImage(pic)
+                .then(function () {
+                var index = _this.pictures.indexOf(pic);
+                _this.pictures.splice(index, 1);
+            });
         };
         __decorate([
             aurelia_framework_1.bindable,
             __metadata("design:type", Object)
-        ], UploadedPicture.prototype, "value", void 0);
+        ], UploadedPicture.prototype, "pic", void 0);
+        __decorate([
+            aurelia_framework_1.bindable({ defaultBindingMode: aurelia_binding_1.bindingMode.twoWay }),
+            __metadata("design:type", Object)
+        ], UploadedPicture.prototype, "pictures", void 0);
+        UploadedPicture = __decorate([
+            aurelia_framework_1.autoinject,
+            __metadata("design:paramtypes", [blobStorage_1.BloblStorage])
+        ], UploadedPicture);
         return UploadedPicture;
     }());
     exports.UploadedPicture = UploadedPicture;
@@ -385,10 +395,10 @@ define('resources/elements/uploaded-picture',["require", "exports", "aurelia-fra
 
 
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./resources/elements/form-upload\"></require><h1>Upload Pictures</h1><form-upload pictures.bind=\"pictures\" pictureloading.bind=\"pictureloading\"></form-upload><div id=\"pictures\"><div class=\"picture\" repeat.for=\"pic of pictures\"><div><a click.delegate=\"DeleteImage(pic)\" href=\"#\" style=\"float:right\">Delete</a><div><img width=\"250px\" src.bind=\"pic.url\"></div><div>${pic.caption}</div></div></div><div class=\"picture\" if.bind=\"pictureloading\"><img src=\"../loading.gif\" alt=\"\"></div></div><style>#pictures{display:flex}#pictures .picture{padding:10px;width:250px}</style></template>"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./resources/elements/form-upload\"></require><require from=\"./resources/elements/uploaded-picture\"></require><h1>Upload Pictures</h1><form-upload pictures.bind=\"pictures\" pictureloading.bind=\"pictureloading\"></form-upload><div id=\"pictures\"><div class=\"picture\" repeat.for=\"pic of pictures\"><uploaded-picture pictures.bind=\"pictures\" pic.bind=\"pic\"></uploaded-picture></div><div class=\"picture\" if.bind=\"pictureloading\"><img src=\"../loading.gif\" alt=\"\"></div></div><style>#pictures{display:flex}#pictures .picture{padding:10px;width:250px}</style></template>"; });
 define('text!resources/elements/form-uploadCustomElement.html', ['module'], function(module) { module.exports = "<template><form class=\"box has-advanced-upload\" method=\"post\" action=\"\"><div class=\"box__input\"><input class=\"box__file\" type=\"file\" name=\"files[]\" id=\"file\" files.bind=\"files\" multiple=\"multiple\"><label for=\"file\"><strong>Choose a file</strong><span class=\"box__dragndrop\"> or drag it here</span>.</label><button class=\"box__button\" type=\"submit\">Upload</button></div><div class=\"box__uploading\">Uploading&hellip;</div><div class=\"box__success\">Done!</div><div class=\"box__error\">Error! <span></span>.</div></form><style>.box__dragndrop,.box__error,.box__success,.box__uploading{display:none}.box.has-advanced-upload{background-color:#fff;outline:2px dashed #000;outline-offset:-10px}.box.has-advanced-upload .box__dragndrop{display:inline}</style></template>"; });
 define('text!resources/elements/test.html', ['module'], function(module) { module.exports = "<template><h1>${value}</h1></template>"; });
-define('text!resources/elements/form-upload.html', ['module'], function(module) { module.exports = "<template><form class=\"box has-advanced-upload\" dragover.trigger=\"dragging = true\" dragleave.trigger=\"dragging = false\" drop.trigger=\"FileDropped($event)\"><div class=\"box__input ${dragging ? 'dragging':''}\"><input change.delegate=\"Submit()\" class=\"box__file\" type=\"file\" name=\"file\" id=\"file\" files.bind=\"files\" multiple=\"multiple\"><label for=\"file\"><i class=\"fa fa-upload fa-5x\"></i><div if.bind=\"dragging\">Let go to upload!</div><div else><div><strong>Click here to upload</strong> <span class=\"box__dragndrop\">or drag it here</span></div></div></label></div></form><style>.box__file{display:none}.box__input{background-color:#fff;outline:2px dashed #000;padding:50px;text-align:center}.box__input.dragging{background-color:#f0f8ff}label{font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande','Lucida Sans',Arial,sans-serif;font-size:200%;cursor:pointer}label i{opacity:.2}</style></template>"; });
+define('text!resources/elements/form-upload.html', ['module'], function(module) { module.exports = "<template><form class=\"box has-advanced-upload\" dragover.trigger=\"dragOver($event)\" dragleave.trigger=\"dragging = false\" drop.trigger=\"filedropped($event)\"><div class=\"box__input ${dragging ? 'dragging':''}\"><input change.delegate=\"Submit()\" class=\"box__file\" type=\"file\" name=\"file\" id=\"file\" files.bind=\"files\" single><label for=\"file\"><i class=\"fa fa-upload fa-5x\"></i><div if.bind=\"dragging\">Let go to upload!</div><div else><div><strong>Click here to upload</strong> <span class=\"box__dragndrop\">or drag it here</span></div></div></label></div></form><style>.box__file{display:none}.box__input{background-color:#fff;outline:2px dashed #000;padding:50px;text-align:center}.box__input.dragging{background-color:#f0f8ff}label{font-family:'Trebuchet MS','Lucida Sans Unicode','Lucida Grande','Lucida Sans',Arial,sans-serif;font-size:200%;cursor:pointer}label i{opacity:.2}</style></template>"; });
 define('text!resources/elements/picture.html', ['module'], function(module) { module.exports = "<template><h1>${value}</h1></template>"; });
-define('text!resources/elements/uploaded-picture.html', ['module'], function(module) { module.exports = "<template><h1>${value}</h1></template>"; });
+define('text!resources/elements/uploaded-picture.html', ['module'], function(module) { module.exports = "<template><div><a click.delegate=\"DeleteImage(pic)\" href=\"#\" style=\"float:right\">Delete</a><div><img width=\"250px\" src.bind=\"pic.url\"></div><div>${pic.caption}</div></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map

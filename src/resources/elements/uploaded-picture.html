@@ -1,3 +1,11 @@
 <template>
-  <h1>${value}</h1>
+
+  <div>
+    <a click.delegate="DeleteImage(pic)" href="#" style="float:right">Delete</a>
+    <div>
+      <img width="250px" src.bind="pic.url">
+    </div>
+    <div>${pic.caption}</div>
+  </div>
+
 </template>
