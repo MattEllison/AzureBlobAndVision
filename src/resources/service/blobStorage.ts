@@ -1,13 +1,13 @@
 import { autoinject } from 'aurelia-dependency-injection';
 import { Picture } from './../../Models/Picture';
 import { HttpClient } from 'aurelia-http-client';
-  
+
 @autoinject
 export class BloblStorage {
     pictureContainer = "https://catstorageorix.blob.core.windows.net/temp";
     sharedKeyInfo = "sv=2017-04-17&ss=bfqt&srt=sco&sp=rwdlacup&se=2017-11-24T20:50:05Z&st=2017-11-04T12:50:05Z&spr=https&sig=lTzCFbApWqiRXlCJ6RHSim9BP2GsYMucxtVGxssxfWg%3D";
 
-    constructor(private httpClient:HttpClient){
+    constructor(private httpClient: HttpClient) {
 
     }
     SavePicture(file) {
@@ -41,7 +41,7 @@ export class BloblStorage {
 
 
     GetPictures() {
-        
+
         let client = new HttpClient().configure(x => {
             //        ajaxRequest.setRequestHeader('x-ms-blob-type', 'BlockBlob');
             x.withHeader('Content-Type', 'application/json');
@@ -49,7 +49,7 @@ export class BloblStorage {
 
 
         let url = `${this.pictureContainer}?restype=container&comp=list&${this.sharedKeyInfo}`
-        console.log("Container Emails",url);
+        console.log("Container Emails", url);
         return client.get(url).then((result) => {
             let pictures = new Array<Picture>();
             console.log("Getting Pics", result);
@@ -58,9 +58,10 @@ export class BloblStorage {
             console.log(oDOM);
             var blobs = oDOM.getElementsByTagName("Blob")
             for (var index = 0; index < blobs.length; index++) {
-                console.log("Blob",blobs[index]);
-                let name = blobs[index].getElementsByTagName("Name")[0].innerHTML;
-
+                console.log("Blob", blobs[index]);
+                //let name = blobs[index].getElementsByTagName("Name")[0].innerHTML;
+                let name = blobs[index].getElementsByTagName('Name')[0].textContent;
+                console.log("Name", name);
 
                 let newResult = new Picture();
                 newResult.caption = name;
@@ -80,15 +81,21 @@ export class BloblStorage {
         let client = new HttpClient();
         console.log("Blob url ", `${this.pictureContainer}/${filename}?${this.sharedKeyInfo}`);
         return client.get(`${this.pictureContainer}/${filename}?${this.sharedKeyInfo}`).then((result) => {
-            return result.headers['headers']['x-ms-meta-caption'].value;
+            if (typeof (result.headers['headers']['x-ms-meta-caption']) == "object"){
+                return result.headers['headers']['x-ms-meta-caption'].value;
+            } else {
+                return "";
+            }
+
+
         })
     }
 
 
-    DeleteImage(picture:Picture){
+    DeleteImage(picture: Picture) {
         return this.httpClient
-        .delete(`${picture.url}?${this.sharedKeyInfo}`);
-        
+            .delete(`${picture.url}?${this.sharedKeyInfo}`);
+
 
     }
 }
