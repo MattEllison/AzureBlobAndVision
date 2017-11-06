@@ -24,6 +24,7 @@ define('app',["require", "exports", "aurelia-dependency-injection", "./resources
                 console.log("Got pics", pictures);
                 pictures.forEach(function (picture) {
                     _this.blobStorage.GetBlobCaption(picture.filename).then(function (caption) {
+                        console.log("Caption", caption);
                         picture.caption = caption;
                         _this.pictures.push(picture);
                     });
@@ -238,10 +239,10 @@ define('resources/service/blobStorage',["require", "exports", "aurelia-dependenc
         }
         BloblStorage.prototype.SavePicture = function (file) {
             var _this = this;
-            var client = new aurelia_http_client_1.HttpClient().configure(function (x) {
+            this.httpClient.configure(function (x) {
                 x.withHeader('x-ms-blob-type', 'BlockBlob');
             });
-            return client.put(this.pictureContainer + "/" + file.name + "?" + this.sharedKeyInfo, file).then(function (response) {
+            return this.httpClient.put(this.pictureContainer + "/" + file.name + "?" + this.sharedKeyInfo, file).then(function (response) {
                 var newPic = new Picture_1.Picture();
                 newPic.filename = file.name;
                 newPic.url = _this.pictureContainer + "/" + file.name;
@@ -262,12 +263,12 @@ define('resources/service/blobStorage',["require", "exports", "aurelia-dependenc
         };
         BloblStorage.prototype.GetPictures = function () {
             var _this = this;
-            var client = new aurelia_http_client_1.HttpClient().configure(function (x) {
+            this.httpClient.configure(function (x) {
                 x.withHeader('Content-Type', 'application/json');
             });
             var url = this.pictureContainer + "?restype=container&comp=list&" + this.sharedKeyInfo;
             console.log("Container Emails", url);
-            return client.get(url).then(function (result) {
+            return this.httpClient.get(url).then(function (result) {
                 var pictures = new Array();
                 console.log("Getting Pics", result);
                 var oParser = new DOMParser();
@@ -289,9 +290,9 @@ define('resources/service/blobStorage',["require", "exports", "aurelia-dependenc
             });
         };
         BloblStorage.prototype.GetBlobCaption = function (filename) {
-            var client = new aurelia_http_client_1.HttpClient();
             console.log("Blob url ", this.pictureContainer + "/" + filename + "?" + this.sharedKeyInfo);
-            return client.get(this.pictureContainer + "/" + filename + "?" + this.sharedKeyInfo).then(function (result) {
+            return this.httpClient.get(this.pictureContainer + "/" + filename + "?comp=metadata&" + this.sharedKeyInfo).then(function (result) {
+                console.log("Caption result", result);
                 if (typeof (result.headers['headers']['x-ms-meta-caption']) == "object") {
                     return result.headers['headers']['x-ms-meta-caption'].value;
                 }

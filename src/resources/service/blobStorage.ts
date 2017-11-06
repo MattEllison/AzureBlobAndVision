@@ -12,11 +12,11 @@ export class BloblStorage {
     }
     SavePicture(file) {
 
-        let client = new HttpClient().configure(x => {
+        this.httpClient.configure(x => {
             x.withHeader('x-ms-blob-type', 'BlockBlob');
         });
 
-        return client.put(`${this.pictureContainer}/${file.name}?${this.sharedKeyInfo}`, file).then((response) => {
+        return this.httpClient.put(`${this.pictureContainer}/${file.name}?${this.sharedKeyInfo}`, file).then((response) => {
             let newPic = new Picture();
             newPic.filename = file.name;
             newPic.url = `${this.pictureContainer}/${file.name}`;
@@ -42,7 +42,7 @@ export class BloblStorage {
 
     GetPictures() {
 
-        let client = new HttpClient().configure(x => {
+        this.httpClient.configure(x => {
             //        ajaxRequest.setRequestHeader('x-ms-blob-type', 'BlockBlob');
             x.withHeader('Content-Type', 'application/json');
         });
@@ -50,7 +50,7 @@ export class BloblStorage {
 
         let url = `${this.pictureContainer}?restype=container&comp=list&${this.sharedKeyInfo}`
         console.log("Container Emails", url);
-        return client.get(url).then((result) => {
+        return this.httpClient.get(url).then((result) => {
             let pictures = new Array<Picture>();
             console.log("Getting Pics", result);
             var oParser = new DOMParser();
@@ -78,9 +78,9 @@ export class BloblStorage {
     }
 
     GetBlobCaption(filename) {
-        let client = new HttpClient();
         console.log("Blob url ", `${this.pictureContainer}/${filename}?${this.sharedKeyInfo}`);
-        return client.get(`${this.pictureContainer}/${filename}?${this.sharedKeyInfo}`).then((result) => {
+        return this.httpClient.get(`${this.pictureContainer}/${filename}?comp=metadata&${this.sharedKeyInfo}`).then((result) => {
+            console.log("Caption result",result);
             if (typeof (result.headers['headers']['x-ms-meta-caption']) == "object"){
                 return result.headers['headers']['x-ms-meta-caption'].value;
             } else {

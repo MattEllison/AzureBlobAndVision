@@ -23,6 +23,7 @@ export class App {
         console.log("Got pics", pictures)
         pictures.forEach(picture => {
           this.blobStorage.GetBlobCaption(picture.filename).then(caption => {
+            console.log("Caption",caption);
             picture.caption = caption;
             this.pictures.push(picture);
           });
